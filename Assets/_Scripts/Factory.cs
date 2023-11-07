@@ -4,26 +4,33 @@ using Random = UnityEngine.Random;
 
 public class Factory : MonoBehaviour 
 {
+    [SerializeField] private GameObject _chunkPrefab;
+    [SerializeField] private GameObject[] _obstaclePrefabs;
+    [SerializeField][Range(0.0f, 1.0f)] private float _obstacleSpawnChance;
 
-    public void SpawnChunk(Vector3 position, GameObject spawnObject, GameObject[] obstaclePrefabs, float obstacleSpawnChance)
-    {      
-        GameObject chunkContainer = new GameObject("ChunkContainer");                   
-        GameObject chunkObject = Instantiate(spawnObject, position, Quaternion.identity, chunkContainer.transform);
+
+    public void SpawnChunk(Transform spawnChankPosition)
+    {
+        GameObject chunkContainer = new GameObject("ChunkContainer");
+        GameObject chunkObject = Instantiate(_chunkPrefab,
+            spawnChankPosition.position + spawnChankPosition.forward * 10f,   
+            spawnChankPosition.rotation, chunkContainer.transform);
+
         Chunk chunk = chunkObject.GetComponent<Chunk>();
+
         if (chunk == null) return;
 
-        foreach (Transform spawnPosition in chunk.ObstacleSpawnPositions)
+        foreach (Transform spawnObstaclePosition in chunk._obstacleSpawnPositions)                // генерация преград на чанке
         {
-            if (Random.value < obstacleSpawnChance)
+            if (Random.value < _obstacleSpawnChance)
             {
-                int randomObstacleIndex = Random.Range(0, obstaclePrefabs.Length);             
-                Instantiate(obstaclePrefabs[randomObstacleIndex], spawnPosition.position, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f), chunkContainer.transform);
+                int randomObstacleIndex = Random.Range(0, _obstaclePrefabs.Length);
+                Instantiate(_obstaclePrefabs[randomObstacleIndex], 
+                             spawnObstaclePosition.position, 
+                             Quaternion.Euler(0f, Random.Range(0f, 360f), 0f), 
+                             chunkContainer.transform);
             }
         }
     }
-
-    public void SpawnObject(Vector3 position, GameObject _spawnObject)
-    {
-        GameObject gameObject = Instantiate(_spawnObject, position, Quaternion.identity);        
-    }
 }
+
